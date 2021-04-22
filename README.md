@@ -20,8 +20,6 @@ Usage
 Before a BucketManager class instance is created you need to have set `GOOGLE_APPLICATION_CREDENTIALS` in your environmental variables. See the google docs [Getting started with authentication](https://cloud.google.com/docs/authentication/getting-started) to see how this is obtained. 
 
 ```python
-import os
-from google.cloud import storage
 from googleBucketManager import GoogleBucketManager
 
 bucket_manager = GoogleBucketManager(bucket_name='my-bucket')
