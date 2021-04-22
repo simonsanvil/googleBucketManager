@@ -6,7 +6,7 @@ Python interface to manage a Google Cloud Bucket instance.
 Installation:
 ---------
 ```
-pip install 
+pip install git+git://github.com/simonsanvil/googleBucketManager.git#egg=googleBucketManager
 ```
 
 Features:
