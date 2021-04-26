@@ -86,7 +86,8 @@ class GoogleBucketManager():
           if subdir+'/' not in [b for _,b in dirblobs]:
             self.create_folder(os.path.join(equivalent_dir,subdir),verbose=verbose)
         for fname in dirfiles: #check for new local files and create them in the bucket
-          if fname in self.toignore or fname+'/'in self.toignore: continue
+          if fname in self.toignore or fname+'/'in self.toignore: 
+            continue
           local_fpath = os.path.join(parentdir,fname)
           bucket_blobpath = os.path.join(equivalent_dir,fname)
           self.upload_blob(local_fpath,bucket_blobpath,verbose=verbose)
@@ -108,13 +109,34 @@ class GoogleBucketManager():
     if verbose:
       print("Blob {} deleted.".format(blob_name))
 
-  
-  def upload_blob(self,source_file_name, destination_blob_name,verbose=True):
-    """Uploads a file to the bucket."""
+  def get_blob(self,blob_name):
+    '''returns a blob in the bucket from its name'''
     bucket_name = self.bucket_name
-
     bucket = self.storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
+    blob = bucket.blob(blob_name)
+    return blob
+
+  
+  def upload_blob(self,source_file_name, destination_blob_name,verbose=True,deep_rewrite=False):
+    """
+    Uploads a file to the bucket.
+
+    If deep_overwrite is set to True and the uploaded blob has the same path as an  alrady existing blob in the bucket
+    then the permissions and metadata of the old blob will be copied to the new one. 
+    """
+    bucket_name = self.bucket_name
+    bucket = self.storage_client.bucket(bucket_name)
+
+    if destination_blob_name in self.list_dir("",fullpath=False):
+      oldblob = self.get_blob(destination_blob_name)
+      ispublic = "READER" in oldblob.acl.all().get_roles()
+      metadata = oldblob.metadata
+      blob = bucket.blob(destination_blob_name)
+      blob.metadata = metadata
+      if ispublic:
+        blob.make_public()
+    else:  
+      blob = bucket.blob(destination_blob_name)
 
     blob.upload_from_filename(source_file_name)
 
@@ -125,15 +147,23 @@ class GoogleBucketManager():
           )
       )
 
-  def list_dir(self,folder):
+  def list_dir(self,folder,fullpath=True):
     """Lists all the blobs in a bucket folder."""
+
+    if folder is None:
+      folder = ""
+      
+    folder = folder+"/" if len(folder)>0 and not folder.endswith("/") else folder
+    
     bucket_name = self.bucket_name
 
     # Note: Client.list_blobs requires at least package version 1.17.0.
     blobs = self.storage_client.list_blobs(bucket_name,prefix=folder)
+    if fullpath:
+      return [blob.name for blob in blobs][1:]
+    else:
+      return [blob.name[(len(folder)):] for blob in blobs][1:]
 
-    return [blob.name for blob in blobs if blob.name!=folder and blob.name!=folder+'/']
-  
   def list_bucket(self):
     """Lists all the blobs in a bucket."""
     bucket_name = self.bucket_name
