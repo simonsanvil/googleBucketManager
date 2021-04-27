@@ -118,36 +118,39 @@ class GoogleBucketManager():
     return blob
 
   
-  def upload_blob(self,source_file_name, destination_blob_name,verbose=True,deep_rewrite=True):
+  def upload_blob(self,source_file_name, destination_blob_name,make_public=False,verbose=True,deep_rewrite=True):
     """
     Uploads a file to the bucket.
 
+    @make_public: makes the new blob public in the bucket
+
     If deep_overwrite is set to True and the uploaded blob has the same path as an  alrady existing blob in the bucket
     then the permissions and metadata of the old blob will be copied to the new one. 
+
     """
     bucket_name = self.bucket_name
     bucket = self.storage_client.bucket(bucket_name)
 
+    ispublic = False
     if destination_blob_name in self.list_dir("",fullpath=False) and deep_rewrite:
       # print(f"{destination_blob_name} exists. Will be rewrited")
-      oldblob = self.get_blob(destination_blob_name)
-      ispublic = "READER" in oldblob.acl.all().get_roles()
-      metadata = oldblob.metadata
       blob = bucket.blob(destination_blob_name)
-      blob.metadata = metadata
-    else:  
-      ispublic = False
+      ispublic = "READER" in blob.acl.all().get_roles()      
+    else:
+      blob = bucket.blob(destination_blob_name)
     
-    blob = bucket.blob(destination_blob_name)
-    ispublic = "READER" in blob.acl.all().get_roles()
     meta = blob.metadata
-
     blob.upload_from_filename(source_file_name)
+
     blob = bucket.blob(destination_blob_name)
+
     if deep_rewrite:
       if ispublic:
         blob.make_public()
       blob.metadata = meta
+    
+    if make_public:
+      blob.make_public()
     
     if verbose:
       print(
