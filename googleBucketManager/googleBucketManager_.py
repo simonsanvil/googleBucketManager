@@ -16,6 +16,7 @@ class GoogleBucketManager():
       self.bucket_name = bucket_name
     
     self.storage_client = storage.Client()
+    self.bucket = self.storage_client.get_bucket(self.bucket_name) 
 
     self.toignore = ['.ipynb_checkpoints/'] + ignore 
     self.dirs_to_observe = []
@@ -117,7 +118,7 @@ class GoogleBucketManager():
     return blob
 
   
-  def upload_blob(self,source_file_name, destination_blob_name,verbose=True,deep_rewrite=False):
+  def upload_blob(self,source_file_name, destination_blob_name,verbose=True,deep_rewrite=True):
     """
     Uploads a file to the bucket.
 
@@ -127,23 +128,31 @@ class GoogleBucketManager():
     bucket_name = self.bucket_name
     bucket = self.storage_client.bucket(bucket_name)
 
-    if destination_blob_name in self.list_dir("",fullpath=False):
+    if destination_blob_name in self.list_dir("",fullpath=False) and deep_rewrite:
+      # print(f"{destination_blob_name} exists. Will be rewrited")
       oldblob = self.get_blob(destination_blob_name)
       ispublic = "READER" in oldblob.acl.all().get_roles()
       metadata = oldblob.metadata
       blob = bucket.blob(destination_blob_name)
       blob.metadata = metadata
-      if ispublic:
-        blob.make_public()
     else:  
-      blob = bucket.blob(destination_blob_name)
+      ispublic = False
+    
+    blob = bucket.blob(destination_blob_name)
+    ispublic = "READER" in blob.acl.all().get_roles()
+    meta = blob.metadata
 
     blob.upload_from_filename(source_file_name)
-
+    blob = bucket.blob(destination_blob_name)
+    if deep_rewrite:
+      if ispublic:
+        blob.make_public()
+      blob.metadata = meta
+    
     if verbose:
       print(
-          "File {} uploaded to {}.".format(
-              source_file_name, destination_blob_name
+          "File {} uploaded to {} (public: {}).".format(
+              source_file_name, destination_blob_name,ispublic
           )
       )
 
