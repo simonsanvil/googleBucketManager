@@ -40,7 +40,7 @@ class GoogleBucketManager():
     for blob_name in folder_blobs:
       splitted_path = os.path.normpath(blob_name).split(os.sep)
       if splitted_path[0]==folder:
-        destination_fname = os.path.join(destination_folder,'/'.join(splitted_path[1:]))
+        destination_fname = os.path.join(destination_folder,(os.sep).join(splitted_path[1:]))
       else:
         destination_fname = os.path.join(destination_folder,blob_name)
       if blob_name.endswith("/"):
