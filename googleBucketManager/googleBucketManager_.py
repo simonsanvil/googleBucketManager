@@ -44,8 +44,8 @@ class GoogleBucketManager():
       else:
         destination_fname = os.path.join(destination_folder,blob_name)
       if blob_name.endswith("/"):
-        if not os.path.isdir(destination_fname[:-1]):
-          os.mkdir(destination_fname[:-1])
+        if not os.path.isdir(destination_fname):
+          os.mkdir(destination_fname)
         continue
       self.download_blob(blob_name,destination_fname)
     
