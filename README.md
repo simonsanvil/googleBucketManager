@@ -1,7 +1,7 @@
 Google Cloud Bucket Manager
 ==============================
 
-Python interface to manage a Google Cloud Bucket instance.
+Python package with interfaces to manage a Google Cloud Bucket instance.
 
 Installation:
 ---------
