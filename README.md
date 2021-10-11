@@ -40,25 +40,23 @@ bucket_manager.delete_blob('bucket/path/to/blob')
 ```
 Upload local file to bucket:
 ```python
-bucket_manager.list_dir('local/path/to/file','bucket/path/to/new/blob')
+bucket_manager.upload_blob('local/path/to/file','bucket/path/to/new/blob')
 ```
 Download file from bucket to local path:
 ```python
-bucket_manager.list_dir('bucket/path/to/blob','local/path/to/new/file')
+bucket_manager.download_blob('bucket/path/to/blob','local/path/to/new/file')
 ```
-Download bucket folder to a local directory:
+Download remote bucket folder to a local directory:
 ```python
-bucket_manager.list_dir('bucket/path/to/folder','local/path/to/new/folder')
+bucket_manager.download_folder('bucket/path/to/folder','local/path/to/new/folder')
 ```
 Connect a local directory to a bucket folder and sync them:
 ```python
 bucket_manager.link_sync('bucket/path/to/folder-to-sync','local/path/to/directory-to-sync')
 
 #...
-## Make changes to the specified local directory...
-#...
-
-# When you are ready to sync the remote bucket run the following 
+## After making changes to the specified local directory
+# and you are ready to sync the remote bucket run the following 
 # command to apply your local changes to the respective bucket folder
 manager.sync_bucket() 
 ```
