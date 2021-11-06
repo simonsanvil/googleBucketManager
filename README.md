@@ -7,7 +7,7 @@ Python package with tools to manage a Google Cloud Bucket instance.
 Installation:
 ---------
 ```
-pip install git+git://github.com/simonsanvil/googleBucketManager.git
+pip install git+https://github.com/simonsanvil/googleBucketManager
 ```
 
 Features:
